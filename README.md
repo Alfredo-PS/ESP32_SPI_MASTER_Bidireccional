@@ -1,35 +1,23 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+# ESP32 SPI Master Bidireccional
 
-# _Sample project_
+## SPI Master
+El presente código sirve como ejemplo de configuración la ESP32 como Master para la comunicación por SPI, permitiendo el envío y recepción de datos, programado por medio de ESP-IDF SDK Espressif.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Conexiones.
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+| ESP32 Master  | ESP32 Slave   |
+| ------------- |:-------------:|
+| MOSI   23     | MOSI   23     |
+| MISO   19     | MISO   19     |
+| SCLK   18     | SCLK   18     |
+| CS     5      | CS     5      | 
+| GND           | GND           |
 
+En caso de utilizar otro dispositivo distinto de la ESP32, mantener el orden y cablear con los correspondientes pines.
 
+### Descripción del programa.
+El programa de ejemplo envía y recibe 16 bytes en cada mensaje, para ello primero se configura el sistema SPI, definiendo los pines de entradas y salidas, el modo de trabajo, el máximo de bytes por transacción, y los buffers de envío y recepción, se inicializa la comunicación. Dentro del bucle principal que se repite 10 veces, se realiza una transacción, la cual comienza por limpiar los buffers del contenido basura, luego se prepara el mensaje que será enviado del Slave al Master, se configura la transacción, y  se mandan y reciben los mensajes al mismo tiempo, finalmente, se realiza la verificación de errores, por ser un ejemplo se implementa un delay.
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
+### Consideraciones de uso.
+Este manejo de comunicación SPI es adecuado bajo ciertas circunstancias, por ejemplo, es ideal si el Master envía datos continuamente y no es relevante que el Slave alcance a recibir la totalidad de la información. Si se requiere que el proceso de comunicación sea totalmente simultaneo y el Slave reciba todos los datos, entonces se debe implementar el encolamiento, y un pin adicional que sirva como Handshake que le indique al master cuando el Slave esté listo para realizar otra transacción, sin embargo, este manejo además de ser más complejo demanda muchos más recursos del microcontrolador. Si se utiliza la configuración mostrada se recomienda realizar un correcto manejo y comprobación de los datos, pues si la distancia es muy grande o existen muchas perturbaciones  la información se puede ver fácilmente comprometida o alterada.
 
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
